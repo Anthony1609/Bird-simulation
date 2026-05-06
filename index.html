@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boids | AI Flocking Simulation</title>
+    <meta name="description" content="A real-time AI simulation of emergent flocking behavior using the Boids algorithm.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="simulation-canvas"></canvas>
+    </div>
+
+    <aside id="ui-panel">
+        <header>
+            <h1>Boids Simulation</h1>
+            <p class="subtitle">Emergent Flocking AI</p>
+        </header>
+
+        <div class="control-group">
+            <h3>Flock Parameters</h3>
+            <div class="input-row">
+                <div class="input-label">
+                    <span>Boid Count</span>
+                    <span id="boid-count-val" class="value-display">100</span>
+                </div>
+                <input type="range" id="boid-count" min="10" max="300" value="100">
+            </div>
+            <div class="input-row">
+                <div class="input-label">
+                    <span>Max Speed</span>
+                    <span id="max-speed-val" class="value-display">3.5</span>
+                </div>
+                <input type="range" id="max-speed" min="1" max="8" step="0.1" value="3.5">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>Steering Rules</h3>
+            <!-- Separation -->
+            <div class="input-row">
+                <div class="input-label has-tooltip">
+                    <span>Separation Weight</span>
+                    <span id="sep-weight-val" class="value-display">1.5</span>
+                    <div class="tooltip-text">Avoids local crowding by steering away from nearby boids.</div>
+                </div>
+                <input type="range" id="sep-weight" min="0" max="3" step="0.1" value="1.5">
+            </div>
+            <div class="input-row">
+                <div class="input-label">
+                    <span>Separation Radius</span>
+                    <span id="sep-radius-val" class="value-display">25</span>
+                </div>
+                <input type="range" id="sep-radius" min="5" max="60" value="25">
+            </div>
+
+            <!-- Alignment -->
+            <div class="input-row">
+                <div class="input-label has-tooltip">
+                    <span>Alignment Weight</span>
+                    <span id="ali-weight-val" class="value-display">1.0</span>
+                    <div class="tooltip-text">Steers toward the average heading of local neighbors.</div>
+                </div>
+                <input type="range" id="ali-weight" min="0" max="3" step="0.1" value="1.0">
+            </div>
+            <div class="input-row">
+                <div class="input-label">
+                    <span>Alignment Radius</span>
+                    <span id="ali-radius-val" class="value-display">50</span>
+                </div>
+                <input type="range" id="ali-radius" min="20" max="120" value="50">
+            </div>
+
+            <!-- Cohesion -->
+            <div class="input-row">
+                <div class="input-label has-tooltip">
+                    <span>Cohesion Weight</span>
+                    <span id="coh-weight-val" class="value-display">1.0</span>
+                    <div class="tooltip-text">Steers toward the average position (center of mass) of local neighbors.</div>
+                </div>
+                <input type="range" id="coh-weight" min="0" max="3" step="0.1" value="1.0">
+            </div>
+            <div class="input-row">
+                <div class="input-label">
+                    <span>Cohesion Radius</span>
+                    <span id="coh-radius-val" class="value-display">50</span>
+                </div>
+                <input type="range" id="coh-radius" min="20" max="120" value="50">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>Predator Settings</h3>
+            <div class="toggle-row">
+                <span>Enable Predator</span>
+                <input type="checkbox" id="predator-toggle" checked>
+            </div>
+            <div class="input-row">
+                <div class="input-label">
+                    <span>Fear Radius</span>
+                    <span id="fear-radius-val" class="value-display">80</span>
+                </div>
+                <input type="range" id="fear-radius" min="30" max="150" value="80">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3>Interaction</h3>
+            <div class="input-row">
+                <div class="input-label">
+                    <span>Mouse Interaction</span>
+                </div>
+                <select id="interaction-mode" class="styled-select">
+                    <option value="off">Off</option>
+                    <option value="attract">Attract (Click)</option>
+                    <option value="repel">Repel (Click)</option>
+                </select>
+                <p class="help-text">Right-click to place obstacles</p>
+            </div>
+            <button id="clear-obs-btn" class="secondary">Clear Obstacles</button>
+        </div>
+
+        <div class="control-group">
+            <h3>Visuals & System</h3>
+            <div class="input-row">
+                <div class="input-label">
+                    <span>Speed Factor</span>
+                    <span id="speed-factor-val" class="value-display">1.0</span>
+                </div>
+                <input type="range" id="speed-factor" min="0.1" max="3" step="0.1" value="1.0">
+            </div>
+            <div class="toggle-row">
+                <span>Show Perception Radii</span>
+                <input type="checkbox" id="show-radii">
+            </div>
+            <button id="reset-btn">Reset Simulation</button>
+            <button id="random-btn" class="secondary">Randomize Parameters</button>
+        </div>
+
+        <div class="info-box">
+            <b>The Three Rules:</b> Separation keeps boids apart, Alignment makes them face the same way, and Cohesion pulls them into groups.
+        </div>
+    </aside>
+
+    <div id="stats">
+        <div class="stat-item">FPS: <span id="fps-counter">0</span></div>
+        <div class="stat-item">Active Boids: <span id="boid-counter">0</span></div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/Simulation.js"></script>
+</body>
+</html>
